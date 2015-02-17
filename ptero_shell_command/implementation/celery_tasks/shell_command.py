@@ -69,6 +69,7 @@ class ShellCommandTask(celery.Task):
             return False
 
         except OSError as e:
+            LOG.warning("Failed to execute command: %s", command_line);
             if e.errno == 2:
                 LOG.warning('Command not found: %s' % command_line[0])
                 self.webhook(
