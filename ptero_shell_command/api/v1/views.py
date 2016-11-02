@@ -1,6 +1,6 @@
 from . import validators
 from flask import g, request, url_for
-from flask.ext.restful import Resource
+from flask_restful import Resource
 from jsonschema import ValidationError
 from ptero_common import nicer_logging
 from ptero_common.nicer_logging import logged_response
