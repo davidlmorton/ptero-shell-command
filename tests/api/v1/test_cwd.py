@@ -21,8 +21,8 @@ class TestCwd(BaseAPITest):
 
         self.post(self.jobs_url, post_data)
 
-        webhook_data = webhook_target.stop()
-        actual_working_directory = webhook_data[0]['stdout'].strip('\n')
+        webhook_data = webhook_target.stop()[0]['data']
+        actual_working_directory = webhook_data['stdout'].strip('\n')
         self.assertEqual(self.job_working_directory, actual_working_directory)
 
     def test_job_working_directory_does_not_exist(self):
@@ -38,11 +38,11 @@ class TestCwd(BaseAPITest):
         }
 
         post_response = self.post(self.jobs_url, post_data)
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
         self.assertEqual(post_response.status_code, 201)
 
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].endswith('No such file or directory'))
 
     def test_job_working_directory_access_denied(self):
@@ -59,9 +59,9 @@ class TestCwd(BaseAPITest):
         }
 
         post_response = self.post(self.jobs_url, post_data)
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
         self.assertEqual(post_response.status_code, 201)
 
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].endswith('Permission denied'))

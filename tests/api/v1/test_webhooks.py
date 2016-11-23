@@ -16,9 +16,9 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.running)
+        self.assertEqual(webhook_data['status'], statuses.running)
 
     def test_ended_webhook_success(self):
         webhook_target = self.create_webhook_server([200])
@@ -33,10 +33,10 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.succeeded)
+        self.assertEqual(webhook_data['status'], statuses.succeeded)
 
     def test_ended_webhook_failure(self):
         webhook_target = self.create_webhook_server([200])
@@ -51,11 +51,11 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['exitCode'], '1')
-        self.assertEqual(webhook_data[0]['status'], statuses.failed)
+        self.assertEqual(webhook_data['exitCode'], '1')
+        self.assertEqual(webhook_data['status'], statuses.failed)
 
     def test_success_and_failure_webhooks_on_success(self):
         webhook_target = self.create_webhook_server([200])
@@ -71,10 +71,10 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.succeeded)
+        self.assertEqual(webhook_data['status'], statuses.succeeded)
 
     def test_success_and_failure_webhooks_on_failure(self):
         webhook_target = self.create_webhook_server([200])
@@ -90,11 +90,11 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['exitCode'], '1')
-        self.assertEqual(webhook_data[0]['status'], statuses.failed)
+        self.assertEqual(webhook_data['exitCode'], '1')
+        self.assertEqual(webhook_data['status'], statuses.failed)
 
     def test_multiple_webhooks(self):
         webhook_target = self.create_webhook_server([200, 200])
@@ -110,11 +110,11 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        history = webhook_target.stop()
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.running)
-        self.assertEqual(webhook_data[1]['status'], statuses.succeeded)
+        self.assertEqual(history[0]['data']['status'], statuses.running)
+        self.assertEqual(history[1]['data']['status'], statuses.succeeded)
 
     def test_list_of_webhooks(self):
         webhook_target = self.create_webhook_server([200, 200])
@@ -129,11 +129,11 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        history = webhook_target.stop()
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.running)
-        self.assertEqual(webhook_data[1]['status'], statuses.running)
+        self.assertEqual(history[0]['data']['status'], statuses.running)
+        self.assertEqual(history[1]['data']['status'], statuses.running)
 
     def test_environment_set_for_job(self):
         webhook_target = self.create_webhook_server([200])
@@ -154,9 +154,9 @@ class TestWebhooks(BaseAPITest):
         post_response = self.post(self.jobs_url, post_data)
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
-        stdout = webhook_data[0]['stdout']
+        stdout = webhook_data['stdout']
         actual_environment = _extract_environment_dict(stdout)
 
         self.assertEqual(environment, actual_environment)
@@ -178,8 +178,8 @@ class TestWebhooks(BaseAPITest):
         post_response = self.post(self.jobs_url, post_data)
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
-        self.assertEqual(stdin, webhook_data[0]['stdout'])
+        webhook_data = webhook_target.stop()[0]['data']
+        self.assertEqual(stdin, webhook_data['stdout'])
 
     def test_command_not_found(self):
         webhook_target = self.create_webhook_server([200])
@@ -194,11 +194,11 @@ class TestWebhooks(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].startswith('Command not found'))
 
 

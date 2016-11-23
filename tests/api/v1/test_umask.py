@@ -25,5 +25,5 @@ def _test_umask_set_for_job(self, umask):
     self.post(self.jobs_url, post_data)
 
     webhook_data = webhook_target.stop()
-    actual_umask = webhook_data[0]['stdout'].strip('\n')
+    actual_umask = webhook_data[0]['data']['stdout'].strip('\n')
     self.assertEqual(umask, actual_umask)

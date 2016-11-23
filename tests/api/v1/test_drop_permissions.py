@@ -23,11 +23,11 @@ class TestDropPermissions(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].startswith('Refusing to execute job as root user'))
 
     @unittest.skipIf(not TEST_WITH_ROOT, "not running fork worker as root")
@@ -47,8 +47,8 @@ class TestDropPermissions(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
-        id_result = webhook_data[0]['stdout']
+        webhook_data = webhook_target.stop()[0]['data']
+        id_result = webhook_data['stdout']
 
         actual_user = self._find_match(r"uid=\d+\((\w+)\)", id_result)
 
@@ -70,11 +70,11 @@ class TestDropPermissions(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].startswith('Attempted to submit job as invalid user'))
 
     def test_exception_on_setuid_failure(self):
@@ -91,11 +91,11 @@ class TestDropPermissions(BaseAPITest):
         })
         print "job_id: %s" % post_response.DATA['jobId']
 
-        webhook_data = webhook_target.stop()
+        webhook_data = webhook_target.stop()[0]['data']
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(webhook_data[0]['status'], statuses.errored)
-        self.assertTrue(webhook_data[0]['statusHistory'][-1][
+        self.assertEqual(webhook_data['status'], statuses.errored)
+        self.assertTrue(webhook_data['statusHistory'][-1][
             'message'].endswith('getpwnam(): name not found: _no_such_user'))
 
     def _find_match(self, regexp, target):
